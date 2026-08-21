@@ -2,10 +2,12 @@ import styles from './BottomNav.module.css';
 
 export type AppSection =
   | 'discover'
+  | 'explore'
   | 'library';
 
 type BottomNavProps = {
   activeSection: AppSection;
+
   onChange: (
     section: AppSection,
   ) => void;
@@ -23,7 +25,8 @@ export function BottomNav({
       <button
         type="button"
         className={
-          activeSection === 'discover'
+          activeSection ===
+          'discover'
             ? styles.active
             : ''
         }
@@ -31,14 +34,41 @@ export function BottomNav({
           onChange('discover')
         }
       >
-        <span aria-hidden="true">✦</span>
+        <span
+          aria-hidden="true"
+        >
+          ✦
+        </span>
+
         Descubrir
       </button>
 
       <button
         type="button"
         className={
-          activeSection === 'library'
+          activeSection ===
+          'explore'
+            ? styles.active
+            : ''
+        }
+        onClick={() =>
+          onChange('explore')
+        }
+      >
+        <span
+          aria-hidden="true"
+        >
+          ◫
+        </span>
+
+        Explorar
+      </button>
+
+      <button
+        type="button"
+        className={
+          activeSection ===
+          'library'
             ? styles.active
             : ''
         }
@@ -46,7 +76,12 @@ export function BottomNav({
           onChange('library')
         }
       >
-        <span aria-hidden="true">▤</span>
+        <span
+          aria-hidden="true"
+        >
+          ▤
+        </span>
+
         Biblioteca
       </button>
     </nav>

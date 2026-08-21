@@ -1,33 +1,82 @@
 .nav {
   position: absolute;
+
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 10;
+
+  z-index: 20;
+
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
   min-height: 76px;
-  padding: 8px 18px max(8px, env(safe-area-inset-bottom));
-  background: rgb(247 243 235 / 94%);
-  border-top: 1px solid #ddd7ce;
-  backdrop-filter: blur(14px);
+
+  padding:
+    8px
+    14px
+    max(
+      8px,
+      env(
+        safe-area-inset-bottom
+      )
+    );
+
+  border-top:
+    1px solid
+    #ddd7ce;
+
+  background:
+    rgb(
+      247 243 235 /
+      95%
+    );
+
+  backdrop-filter:
+    blur(14px);
 }
 
 .nav button {
   display: grid;
-  gap: 3px;
-  justify-items: center;
+
+  gap: 4px;
+
+  min-width: 0;
+
+  place-items: center;
+
   align-content: center;
+
   border: 0;
+
   background: transparent;
-  color: #8d877f;
+
+  color: #999188;
+
   font: inherit;
-  font-size: 0.76rem;
+
+  font-size: 0.66rem;
+
   cursor: pointer;
+
+  transition:
+    color
+    160ms ease;
 }
 
 .nav button span {
-  font-size: 1.15rem;
+  display: grid;
+
+  min-height: 19px;
+
+  place-items: center;
+
+  font-size: 1rem;
 }
 
 .nav .active {

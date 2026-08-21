@@ -4,12 +4,21 @@ import {
 } from 'react';
 
 import {
+  discoveries,
+} from './data/discoveries';
+
+import {
   DiscoveryDetail,
+  type DiscoveryLearningMode,
 } from './features/discover/components/DiscoveryDetail';
 
 import {
   DiscoveryWheel,
 } from './features/discover/components/DiscoveryWheel';
+
+import {
+  ExploreView,
+} from './features/explore/components/ExploreView';
 
 import {
   LibraryView,
@@ -25,10 +34,6 @@ import {
 } from './shared/components/BottomNav';
 
 import {
-  discoveries,
-} from './data/discoveries';
-
-import {
   useDiscoveryStore,
 } from './store/useDiscoveryStore';
 
@@ -36,67 +41,174 @@ import type {
   Discovery,
 } from './types/discovery';
 
+type ActiveDiscovery = {
+  discovery: Discovery;
+
+  initialMode:
+    DiscoveryLearningMode;
+};
+
 export function App() {
-  const [section, setSection] =
-    useState<AppSection>('discover');
-
-  const [activeDiscovery, setActiveDiscovery] =
-    useState<Discovery | null>(null);
-
-  const {
-    viewedIds,
-  } = useDiscoveryStore();
-
-  const availableDiscoveries =
-    useMemo(
-      () =>
-        discoveries.filter(
-          (item) =>
-            !viewedIds.includes(item.id),
-        ),
-      [viewedIds],
+  const [
+    section,
+    setSection,
+  ] =
+    useState<AppSection>(
+      'discover',
     );
 
-  function handleDiscover(
+  const [
+    activeDiscovery,
+    setActiveDiscovery,
+  ] =
+    useState<
+      ActiveDiscovery | null
+    >(null);
+
+  const viewedIds =
+    useDiscoveryStore(
+      (state) =>
+        state.viewedIds,
+    );
+
+  const availableDiscoveries =
+    useMemo(() => {
+      const unseen =
+        discoveries.filter(
+          (discovery) =>
+            !viewedIds.includes(
+              discovery.id,
+            ),
+        );
+
+      return unseen.length > 0
+        ? unseen
+        : discoveries;
+    }, [
+      viewedIds,
+    ]);
+
+  function openDiscovery(
     discovery: Discovery,
+    mode:
+      DiscoveryLearningMode =
+      'choice',
   ) {
-    setActiveDiscovery(discovery);
+    setActiveDiscovery({
+      discovery,
+
+      initialMode:
+        mode,
+    });
   }
 
-  function handleCloseDiscovery() {
-    setActiveDiscovery(null);
+  function closeDiscovery() {
+    setActiveDiscovery(
+      null,
+    );
+  }
+
+  function changeSection(
+    nextSection:
+      AppSection,
+  ) {
+    setActiveDiscovery(
+      null,
+    );
+
+    setSection(
+      nextSection,
+    );
+  }
+
+  function renderSection() {
+    switch (section) {
+      case 'discover':
+        return (
+          <DiscoveryWheel
+            discoveries={
+              availableDiscoveries
+            }
+            allDiscoveries={
+              discoveries
+            }
+            onDiscover={
+              openDiscovery
+            }
+            onExplore={() =>
+              setSection(
+                'explore',
+              )
+            }
+          />
+        );
+
+      case 'explore':
+        return (
+          <ExploreView
+            discoveries={
+              discoveries
+            }
+            onOpen={(
+              discovery,
+            ) =>
+              openDiscovery(
+                discovery,
+                'choice',
+              )
+            }
+          />
+        );
+
+      case 'library':
+        return (
+          <LibraryView
+            discoveries={
+              discoveries
+            }
+            onOpen={(
+              discovery,
+            ) =>
+              openDiscovery(
+                discovery,
+                'choice',
+              )
+            }
+          />
+        );
+
+      default:
+        return null;
+    }
   }
 
   return (
     <AppShell>
       {activeDiscovery ? (
         <DiscoveryDetail
-          discovery={activeDiscovery}
-          onClose={handleCloseDiscovery}
+          discovery={
+            activeDiscovery
+              .discovery
+          }
+          initialMode={
+            activeDiscovery
+              .initialMode
+          }
+          onClose={
+            closeDiscovery
+          }
         />
       ) : (
         <>
-          {section === 'discover' && (
-            <DiscoveryWheel
-              discoveries={
-                availableDiscoveries.length
-                  ? availableDiscoveries
-                  : discoveries
-              }
-              onDiscover={handleDiscover}
-            />
-          )}
-
-          {section === 'library' && (
-            <LibraryView
-              discoveries={discoveries}
-              onOpen={handleDiscover}
-            />
-          )}
+          {renderSection()}
 
           <BottomNav
-            activeSection={section}
-            onChange={setSection}
+            activeSection={
+              section
+            }
+            onChange={
+              changeSection
+            }
           />
         </>
       )}

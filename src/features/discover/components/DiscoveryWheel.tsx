@@ -1,263 +1,282 @@
 import {
   useMemo,
   useState,
-  type CSSProperties,
 } from 'react';
+
+import {
+  useDiscoveryStore,
+} from '../../../store/useDiscoveryStore';
 
 import type {
   Discovery,
   DiscoveryCategory,
 } from '../../../types/discovery';
 
+import type {
+  DiscoveryLearningMode,
+} from './DiscoveryDetail';
+
 import styles from './DiscoveryWheel.module.css';
 
 type DiscoveryWheelProps = {
   discoveries: Discovery[];
 
+  allDiscoveries: Discovery[];
+
   onDiscover: (
     discovery: Discovery,
+    mode?: DiscoveryLearningMode,
   ) => void;
+
+  onExplore: () => void;
 };
 
-type CategoryOption = {
-  key: DiscoveryCategory;
-  label: string;
+const categoryNames: Record<
+  DiscoveryCategory,
+  string
+> = {
+  history: 'Historia',
+  science: 'Ciencia',
+  geography: 'Mundo',
+  psychology: 'Psicología',
+  art: 'Arte',
+  technology: 'Tecnología',
+  nature: 'Naturaleza',
+  curiosity: 'Curiosidades',
 };
 
-const categories: CategoryOption[] = [
-  {
-    key: 'history',
-    label: 'Historia',
-  },
-  {
-    key: 'science',
-    label: 'Ciencia',
-  },
-  {
-    key: 'art',
-    label: 'Arte',
-  },
-  {
-    key: 'technology',
-    label: 'Tecnología',
-  },
-  {
-    key: 'geography',
-    label: 'Mundo',
-  },
-  {
-    key: 'psychology',
-    label: 'Psicología',
-  },
-  {
-    key: 'nature',
-    label: 'Naturaleza',
-  },
-  {
-    key: 'curiosity',
-    label: 'Curiosidad',
-  },
-];
+const categorySymbols: Record<
+  DiscoveryCategory,
+  string
+> = {
+  history: 'H',
+  science: 'C',
+  geography: 'M',
+  psychology: 'P',
+  art: 'A',
+  technology: 'T',
+  nature: 'N',
+  curiosity: '?',
+};
 
 function getRandomItem<T>(
   items: T[],
-): T {
-  return items[
-    Math.floor(
-      Math.random() *
-        items.length,
-    )
-  ];
-}
+): T | null {
+  if (items.length === 0) {
+    return null;
+  }
 
-function getLabelPosition(
-  index: number,
-): CSSProperties {
-  const angle =
-    index *
-      (360 /
-        categories.length) -
-    90;
+  const index = Math.floor(
+    Math.random() *
+      items.length,
+  );
 
-  return {
-    '--angle': `${angle}deg`,
-  } as CSSProperties;
+  return items[index];
 }
 
 export function DiscoveryWheel({
   discoveries,
+  allDiscoveries,
   onDiscover,
+  onExplore,
 }: DiscoveryWheelProps) {
   const [
-    isSpinning,
-    setIsSpinning,
+    isChoosing,
+    setIsChoosing,
   ] = useState(false);
 
-  const [
-    rotation,
-    setRotation,
-  ] = useState(0);
-
-  const availableCategories =
-    useMemo(
-      () =>
-        new Set(
-          discoveries.map(
-            (item) =>
-              item.category,
-          ),
-        ),
-      [discoveries],
+  const viewedIds =
+    useDiscoveryStore(
+      (state) =>
+        state.viewedIds,
     );
 
-  function completeDiscovery(
-    discovery: Discovery,
+  const viewedDiscoveries =
+    useMemo(() => {
+      return viewedIds
+        .map((id) =>
+          allDiscoveries.find(
+            (item) =>
+              item.id === id,
+          ),
+        )
+        .filter(
+          (
+            item,
+          ): item is Discovery =>
+            item !==
+            undefined,
+        );
+    }, [
+      allDiscoveries,
+      viewedIds,
+    ]);
+
+  const dominantCategory =
+    useMemo(() => {
+      const recent =
+        viewedDiscoveries.slice(
+          -8,
+        );
+
+      if (
+        recent.length < 4
+      ) {
+        return null;
+      }
+
+      const counts =
+        recent.reduce<
+          Partial<
+            Record<
+              DiscoveryCategory,
+              number
+            >
+          >
+        >(
+          (
+            accumulator,
+            discovery,
+          ) => {
+            accumulator[
+              discovery.category
+            ] =
+              (accumulator[
+                discovery.category
+              ] ?? 0) + 1;
+
+            return accumulator;
+          },
+          {},
+        );
+
+      const sorted =
+        Object.entries(
+          counts,
+        )
+          .map(
+            ([
+              category,
+              count,
+            ]) => ({
+              category:
+                category as DiscoveryCategory,
+
+              count,
+            }),
+          )
+          .sort(
+            (a, b) =>
+              b.count -
+              a.count,
+          );
+
+      const first =
+        sorted[0];
+
+      if (!first) {
+        return null;
+      }
+
+      const ratio =
+        first.count /
+        recent.length;
+
+      if (
+        first.count < 3 ||
+        ratio < 0.5
+      ) {
+        return null;
+      }
+
+      return first.category;
+    }, [
+      viewedDiscoveries,
+    ]);
+
+  function reveal(
+    pool: Discovery[],
+    mode:
+      DiscoveryLearningMode =
+      'choice',
   ) {
-    window.setTimeout(() => {
-      setIsSpinning(false);
-
-      onDiscover(discovery);
-    }, 1100);
-  }
-
-  function spinRandom() {
     if (
-      isSpinning ||
-      discoveries.length === 0
+      isChoosing ||
+      pool.length === 0
     ) {
       return;
     }
 
-    setIsSpinning(true);
-
-    const selected =
-      getRandomItem(
-        discoveries,
-      );
-
-    const categoryIndex =
-      categories.findIndex(
-        (category) =>
-          category.key ===
-          selected.category,
-      );
-
-    const segmentAngle =
-      360 /
-      categories.length;
-
-    const targetAngle =
-      360 -
-      categoryIndex *
-        segmentAngle;
-
-    setRotation(
-      (previous) =>
-        previous +
-        1080 +
-        targetAngle,
-    );
-
-    completeDiscovery(
-      selected,
-    );
-  }
-
-  function discoverCategory(
-    category:
-      DiscoveryCategory,
-  ) {
-    if (isSpinning) {
-      return;
-    }
-
-    const pool =
-      discoveries.filter(
-        (discovery) =>
-          discovery.category ===
-          category,
-      );
-
-    if (!pool.length) {
-      return;
-    }
-
-    setIsSpinning(true);
+    setIsChoosing(true);
 
     const selected =
       getRandomItem(pool);
 
-    const categoryIndex =
-      categories.findIndex(
-        (item) =>
-          item.key ===
-          category,
-      );
+    if (!selected) {
+      setIsChoosing(false);
 
-    const segmentAngle =
-      360 /
-      categories.length;
-
-    const targetAngle =
-      360 -
-      categoryIndex *
-        segmentAngle;
-
-    setRotation(
-      (previous) =>
-        previous +
-        720 +
-        targetAngle,
-    );
-
-    completeDiscovery(
-      selected,
-    );
-  }
-
-  function discoverFiveMinutes() {
-    if (isSpinning) {
       return;
     }
 
-    const short =
+    window.setTimeout(() => {
+      setIsChoosing(false);
+
+      onDiscover(
+        selected,
+        mode,
+      );
+    }, 420);
+  }
+
+  function surpriseMe() {
+    reveal(
+      discoveries,
+      'choice',
+    );
+  }
+
+  function oneMinute() {
+    reveal(
+      discoveries,
+      'quick',
+    );
+  }
+
+  function fiveMinutes() {
+    const pool =
       discoveries.filter(
         (item) =>
-          item.duration <= 5,
+          item.standard.sections
+            .length > 0,
       );
 
-    const pool =
-      short.length
-        ? short
-        : discoveries;
-
-    setIsSpinning(true);
-
-    const selected =
-      getRandomItem(pool);
-
-    const categoryIndex =
-      categories.findIndex(
-        (category) =>
-          category.key ===
-          selected.category,
-      );
-
-    const segmentAngle =
-      360 /
-      categories.length;
-
-    setRotation(
-      (previous) =>
-        previous +
-        720 +
-        360 -
-        categoryIndex *
-          segmentAngle,
+    reveal(
+      pool.length > 0
+        ? pool
+        : discoveries,
+      'standard',
     );
+  }
 
-    completeDiscovery(
-      selected,
+  function leaveBubble() {
+    if (!dominantCategory) {
+      surpriseMe();
+
+      return;
+    }
+
+    const different =
+      discoveries.filter(
+        (item) =>
+          item.category !==
+          dominantCategory,
+      );
+
+    reveal(
+      different.length > 0
+        ? different
+        : discoveries,
+      'choice',
     );
   }
 
@@ -269,7 +288,7 @@ export function DiscoveryWheel({
     >
       <header
         className={
-          styles.header
+          styles.brandHeader
         }
       >
         <div
@@ -291,200 +310,220 @@ export function DiscoveryWheel({
           </span>
         </div>
 
-        <div
-          className={
-            styles.intro
-          }
-        >
-          <p
-            className={
-              styles.eyebrow
-            }
-          >
-            NO BUSQUES.
-            ENCONTRÁ.
-          </p>
-
-          <h1>
-            ¿Qué vas a
-            descubrir hoy?
-          </h1>
-
-          <p
-            className={
-              styles.description
-            }
-          >
-            Girá y dejá que
-            algo inesperado
-            te encuentre.
-          </p>
-        </div>
+        <p>
+          CONOCIMIENTO SIN FEED
+        </p>
       </header>
 
-      <div
+      <section
         className={
-          styles.wheelArea
+          styles.intro
+        }
+      >
+        <h1>
+          ¿Qué vas a
+          descubrir hoy?
+        </h1>
+
+        <p>
+          Elegí un camino o
+          dejá que algo
+          inesperado te
+          encuentre.
+        </p>
+      </section>
+
+      <button
+        type="button"
+        className={
+          styles.surpriseCard
+        }
+        onClick={
+          surpriseMe
+        }
+        disabled={
+          isChoosing
         }
       >
         <div
           className={
-            styles.pointer
+            styles.surpriseTop
           }
-          aria-hidden="true"
-        />
+        >
+          <span
+            className={
+              styles.surpriseMark
+            }
+            aria-hidden="true"
+          >
+            ✦
+          </span>
+
+          <span
+            className={
+              styles.randomLabel
+            }
+          >
+            AZAR
+          </span>
+        </div>
 
         <div
           className={
-            styles.wheelFrame
+            styles.surpriseCopy
           }
         >
-          <div
-            className={
-              styles.wheel
-            }
-            style={{
-              transform: `rotate(${rotation}deg)`,
-            }}
-          >
-            <div
-              className={
-                styles.sectors
-              }
-            />
+          <h2>
+            {isChoosing
+              ? 'Buscando algo...'
+              : 'Sorprendeme'}
+          </h2>
 
-            {categories.map(
-              (
-                category,
-                index,
-              ) => {
-                const available =
-                  availableCategories.has(
-                    category.key,
-                  );
-
-                return (
-                  <button
-                    key={
-                      category.key
-                    }
-                    type="button"
-                    className={`${styles.category} ${
-                      available
-                        ? ''
-                        : styles.categoryUnavailable
-                    }`}
-                    style={getLabelPosition(
-                      index,
-                    )}
-                    onClick={() =>
-                      discoverCategory(
-                        category.key,
-                      )
-                    }
-                    disabled={
-                      isSpinning ||
-                      !available
-                    }
-                  >
-                    <span>
-                      {
-                        category.label
-                      }
-                    </span>
-                  </button>
-                );
-              },
-            )}
-
-            <div
-              className={
-                styles.innerRing
-              }
-            />
-          </div>
-
-          <button
-            type="button"
-            className={
-              styles.centerButton
-            }
-            onClick={
-              spinRandom
-            }
-            disabled={
-              isSpinning
-            }
-          >
-            <span
-              className={
-                styles.randomLabel
-              }
-            >
-              AZAR
-            </span>
-
-            <span
-              className={
-                styles.spark
-              }
-              aria-hidden="true"
-            >
-              ✦
-            </span>
-
-            <strong>
-              {isSpinning
-                ? 'Buscando'
-                : 'Girar'}
-            </strong>
-          </button>
+          <p>
+            No elijas el tema.
+            Dejale una parte al
+            azar.
+          </p>
         </div>
-      </div>
+
+        <div
+          className={
+            styles.surpriseFooter
+          }
+        >
+          <span>
+            Descubrir algo
+            inesperado
+          </span>
+
+          <span
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </div>
+      </button>
 
       <div
         className={
-          styles.quickAction
+          styles.actionGrid
         }
       >
         <button
           type="button"
           className={
-            styles.timeButton
+            styles.actionCard
           }
           onClick={
-            discoverFiveMinutes
-          }
-          disabled={
-            isSpinning
+            onExplore
           }
         >
           <span
             className={
-              styles.timeCircle
+              styles.actionSymbol
             }
+            aria-hidden="true"
+          >
+            ◫
+          </span>
+
+          <div>
+            <strong>
+              Elegir un área
+            </strong>
+
+            <small>
+              Historia, ciencia,
+              arte y más
+            </small>
+          </div>
+
+          <span
+            className={
+              styles.actionArrow
+            }
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </button>
+
+        <button
+          type="button"
+          className={
+            styles.actionCard
+          }
+          onClick={
+            oneMinute
+          }
+          disabled={
+            isChoosing
+          }
+        >
+          <span
+            className={
+              styles.timeSymbol
+            }
+            aria-hidden="true"
+          >
+            1
+          </span>
+
+          <div>
+            <strong>
+              Tengo 1 minuto
+            </strong>
+
+            <small>
+              La idea esencial
+            </small>
+          </div>
+
+          <span
+            className={
+              styles.actionArrow
+            }
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </button>
+
+        <button
+          type="button"
+          className={
+            styles.actionCard
+          }
+          onClick={
+            fiveMinutes
+          }
+          disabled={
+            isChoosing
+          }
+        >
+          <span
+            className={
+              styles.timeSymbol
+            }
+            aria-hidden="true"
           >
             5
           </span>
 
-          <span
-            className={
-              styles.timeText
-            }
-          >
+          <div>
             <strong>
-              Tengo cinco minutos
+              Tengo 5 minutos
             </strong>
 
             <small>
-              Elegí algo breve
-              por mí
+              Quiero aprender
+              algo
             </small>
-          </span>
+          </div>
 
           <span
             className={
-              styles.timeArrow
+              styles.actionArrow
             }
             aria-hidden="true"
           >
@@ -493,15 +532,90 @@ export function DiscoveryWheel({
         </button>
       </div>
 
-      <p
+      {dominantCategory && (
+        <section
+          className={
+            styles.diversityCard
+          }
+        >
+          <div
+            className={
+              styles.diversityTop
+            }
+          >
+            <span
+              className={
+                styles.categorySymbol
+              }
+            >
+              {
+                categorySymbols[
+                  dominantCategory
+                ]
+              }
+            </span>
+
+            <span
+              className={
+                styles.diversityLabel
+              }
+            >
+              SALÍ DE TU BURBUJA
+            </span>
+          </div>
+
+          <p>
+            Últimamente
+            estuviste explorando
+            bastante{' '}
+            <strong>
+              {
+                categoryNames[
+                  dominantCategory
+                ]
+              }
+            </strong>
+            .
+          </p>
+
+          <button
+            type="button"
+            onClick={
+              leaveBubble
+            }
+            disabled={
+              isChoosing
+            }
+          >
+            Mostrame algo
+            completamente
+            distinto
+
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+        </section>
+      )}
+
+      <footer
         className={
           styles.closing
         }
       >
-        Una idea alcanza para
-        cambiar hacia dónde
-        mirás.
-      </p>
+        <span
+          aria-hidden="true"
+        >
+          ✦
+        </span>
+
+        <p>
+          Entrá. Aprendé algo.
+          Seguí con tu día.
+        </p>
+      </footer>
     </section>
   );
 }
