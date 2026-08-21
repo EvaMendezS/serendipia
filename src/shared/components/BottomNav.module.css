@@ -1,0 +1,35 @@
+.nav {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  min-height: 76px;
+  padding: 8px 18px max(8px, env(safe-area-inset-bottom));
+  background: rgb(247 243 235 / 94%);
+  border-top: 1px solid #ddd7ce;
+  backdrop-filter: blur(14px);
+}
+
+.nav button {
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  align-content: center;
+  border: 0;
+  background: transparent;
+  color: #8d877f;
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.nav button span {
+  font-size: 1.15rem;
+}
+
+.nav .active {
+  color: #171a21;
+}

@@ -1,0 +1,123 @@
+.page {
+  min-height: 100%;
+  padding:
+    calc(30px + env(safe-area-inset-top))
+    20px
+    108px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #7563cf;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.page h1 {
+  margin: 0;
+  color: #171a21;
+  font-size: 2.6rem;
+  letter-spacing: -0.055em;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    1fr
+  );
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.stats div {
+  padding: 18px;
+  border: 1px solid #ddd6cc;
+  border-radius: 18px;
+  background: #fffaf3;
+}
+
+.stats strong,
+.stats span {
+  display: block;
+}
+
+.stats strong {
+  color: #171a21;
+  font-size: 1.65rem;
+}
+
+.stats span {
+  margin-top: 3px;
+  color: #7a746d;
+  font-size: 0.74rem;
+}
+
+.section {
+  margin-top: 28px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  color: #24262b;
+  font-size: 1rem;
+}
+
+.sectionHeader span {
+  color: #918a82;
+  font-size: 0.78rem;
+}
+
+.list {
+  display: grid;
+  gap: 9px;
+}
+
+.list button {
+  display: grid;
+  grid-template-columns:
+    1fr auto;
+  gap: 4px 12px;
+  padding: 16px;
+  border: 1px solid #ddd6cc;
+  border-radius: 18px;
+  background: #fffaf3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.list strong {
+  grid-column: 1 / 2;
+  color: #292b2f;
+  line-height: 1.35;
+}
+
+.list small {
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+  align-self: center;
+  color: #817a73;
+}
+
+.category {
+  color: #7563cf;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.empty {
+  padding: 20px;
+  border: 1px dashed #d8d1c7;
+  border-radius: 18px;
+  color: #8b847d;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}

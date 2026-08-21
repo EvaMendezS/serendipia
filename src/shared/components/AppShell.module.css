@@ -1,0 +1,27 @@
+.shell {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: #e9e4dc;
+}
+
+.device {
+  position: relative;
+  width: min(100%, 430px);
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #f7f3eb;
+}
+
+@media (min-width: 720px) {
+  .shell {
+    padding: 28px;
+  }
+
+  .device {
+    min-height: min(900px, calc(100dvh - 56px));
+    border-radius: 32px;
+    box-shadow:
+      0 22px 60px rgb(17 24 39 / 10%);
+  }
+}

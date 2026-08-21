@@ -1,0 +1,207 @@
+.page,
+.finish {
+  min-height: 100%;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    20px
+    calc(24px + env(safe-area-inset-bottom));
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns:
+    42px 1fr 42px;
+  align-items: center;
+  color: #69635d;
+}
+
+.topbar span {
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.topbar button,
+.closeButton {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #24262b;
+  font: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.progress {
+  height: 3px;
+  margin: 8px 0 28px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ded8cf;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: #6f5bd7;
+  transition: width 180ms ease;
+}
+
+.hero {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #7563cf;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.hero h1,
+.finish h1 {
+  margin: 0;
+  color: #171a21;
+  font-size: clamp(
+    2rem,
+    8vw,
+    2.7rem
+  );
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.hook,
+.takeaway {
+  margin: 14px 0 0;
+  color: #6e6861;
+  line-height: 1.6;
+}
+
+.meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.meta span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #ebe5dc;
+  color: #5d5852;
+  font-size: 0.72rem;
+}
+
+.contentCard {
+  padding: 24px;
+  border: 1px solid #ddd6cc;
+  border-radius: 24px;
+  background: #fffaf3;
+}
+
+.stepLabel {
+  margin: 0 0 16px;
+  color: #25272c;
+  font-weight: 700;
+}
+
+.body {
+  margin: 0;
+  color: #4f4a45;
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.footer {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 0.72fr)
+    minmax(0, 1.28fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.footer button,
+.actions button {
+  min-height: 50px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.nextButton,
+.actions button:first-child {
+  background: #6f5bd7;
+  color: #fff;
+  font-weight: 700;
+}
+
+.secondaryButton {
+  border: 1px solid #d8d1c7 !important;
+  background: transparent !important;
+  color: #3e3a36 !important;
+}
+
+.footer button:disabled {
+  opacity: 0.35;
+}
+
+.finish {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.closeButton {
+  position: absolute;
+  top: calc(
+    16px +
+      env(safe-area-inset-top)
+  );
+  right: 16px;
+}
+
+.finishIcon {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  margin-bottom: 24px;
+  border-radius: 24px;
+  background: #d8ebd5;
+  color: #345443;
+  font-size: 1.8rem;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.relatedCard {
+  margin-top: 26px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #ebe5dc;
+  color: #5b554e;
+  font-size: 0.82rem;
+}
+
+.relatedCard > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.relatedCard > div span {
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: #f8f4ed;
+}
